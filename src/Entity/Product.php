@@ -7,7 +7,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Groups;
 
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']]
+)]
+#[UniqueEntity('Name')]
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
 {
@@ -17,6 +26,7 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $Name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -38,6 +48,7 @@ class Product
      * @var Collection<int, Cart>
      */
     #[ORM\ManyToMany(targetEntity: Cart::class, mappedBy: 'Products')]
+    #[Groups('read')]
     private Collection $carts;
 
     public function __construct()
