@@ -27,21 +27,27 @@ class Product
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
+    #[Groups(['read', 'write'])]
     private ?string $Name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['read', 'write'])]
     private ?string $Image = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['read', 'write'])]
     private ?string $Description = null;
 
     #[ORM\Column]
+    #[Groups(['read', 'write'])]
     private ?int $Price = null;
 
     #[ORM\Column]
+    #[Groups(['read', 'write'])]
     private ?int $Rate = null;
 
     #[ORM\Column]
+    #[Groups(['read', 'write'])]
     private ?bool $Available = null;
 
     /**
@@ -50,6 +56,9 @@ class Product
     #[ORM\ManyToMany(targetEntity: Cart::class, mappedBy: 'Products')]
     #[Groups('read')]
     private Collection $carts;
+
+    #[ORM\OneToOne(mappedBy: 'product', cascade: ['persist', 'remove'])]
+    private ?Media $media = null;
 
     public function __construct()
     {
@@ -156,6 +165,28 @@ class Product
         if ($this->carts->removeElement($cart)) {
             $cart->removeProduct($this);
         }
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($media === null && $this->media !== null) {
+            $this->media->setProduct(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($media !== null && $media->getProduct() !== $this) {
+            $media->setProduct($this);
+        }
+
+        $this->media = $media;
 
         return $this;
     }
