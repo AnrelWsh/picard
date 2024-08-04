@@ -23,6 +23,9 @@ class Cart
     #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'carts')]
     private Collection $Products;
 
+    #[ORM\Column]
+    private ?bool $Validated_cart = null;
+
     public function __construct()
     {
         $this->Products = new ArrayCollection();
@@ -53,6 +56,18 @@ class Cart
     public function removeProduct(Product $product): static
     {
         $this->Products->removeElement($product);
+
+        return $this;
+    }
+
+    public function isValidatedCart(): ?bool
+    {
+        return $this->Validated_cart;
+    }
+
+    public function setValidatedCart(bool $Validated_cart): static
+    {
+        $this->Validated_cart = $Validated_cart;
 
         return $this;
     }
