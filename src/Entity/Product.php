@@ -8,13 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']]
+    denormalizationContext: ['groups' => ['write']],
+    forceEager: false
 )]
 #[UniqueEntity('Name')]
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -26,7 +26,6 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
     #[Groups(['read', 'write'])]
     private ?string $Name = null;
 
@@ -58,6 +57,7 @@ class Product
     private Collection $carts;
 
     #[ORM\OneToOne(mappedBy: 'product', cascade: ['persist', 'remove'])]
+    #[Groups(['read', 'write'])]
     private ?Media $media = null;
 
     public function __construct()
